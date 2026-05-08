@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mavenir – 24hr Study Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --card: #111827;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7cfc6e;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --python: #3b82f6;
+    --linux: #22c55e;
+    --network: #f59e0b;
+    --oop: #a855f7;
+    --sql: #ec4899;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    padding: 32px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0f1929 0%, #0a1628 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p { color: var(--muted); font-size: 14px; }
+
+  .countdown {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0 0;
+    flex-wrap: wrap;
+  }
+  .countdown-block {
+    background: rgba(0,212,255,0.07);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-radius: 8px;
+    padding: 10px 18px;
+    text-align: center;
+    min-width: 70px;
+  }
+  .countdown-block .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+  .countdown-block .lbl {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Timeline */
+  .timeline-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 32px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .timeline-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 36px;
+  }
+  .slot {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+  }
+  .slot:hover { border-color: rgba(0,212,255,0.3); }
+  .slot .time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    padding-top: 2px;
+  }
+  .slot .topic { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .slot .desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .slot.break { opacity: 0.6; }
+  .slot.break .topic { color: var(--muted); }
+
+  /* Pill tags */
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 5px;
+    margin-top: 5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .tag.py { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .tag.lx { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .tag.nw { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .tag.oo { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+  .tag.sq { background: rgba(236,72,153,0.12); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+
+  /* Content sections */
+  .sections { display: flex; flex-direction: column; gap: 24px; }
+
+  .section {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 18px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .section-header:hover { filter: brightness(1.1); }
+  .section-header .s-title {
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header .s-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  .section-header .chevron {
+    font-size: 18px;
+    transition: transform 0.3s;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  /* Python */
+  .py-header { background: linear-gradient(135deg, #1a2744 0%, #0f1e38 100%); border-bottom-color: rgba(59,130,246,0.2); }
+  .py-header .s-title { color: #60a5fa; }
+  /* Linux */
+  .lx-header { background: linear-gradient(135deg, #0d2318 0%, #071810 100%); }
+  .lx-header .s-title { color: #4ade80; }
+  /* OOP */
+  .oo-header { background: linear-gradient(135deg, #1e1040 0%, #120a2e 100%); }
+  .oo-header .s-title { color: #c084fc; }
+  /* SQL */
+  .sq-header { background: linear-gradient(135deg, #2d1030 0%, #1a0a1e 100%); }
+  .sq-header .s-title { color: #f472b6; }
+  /* Network */
+  .nw-header { background: linear-gradient(135deg, #2d1f08 0%, #1a1205 100%); }
+  .nw-header .s-title { color: #fbbf24; }
+
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .concept-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .concept-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .concept-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .concept-card ul li {
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .concept-card ul li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .code-block {
+    background: #060d18;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #a8d8ea;
+    margin-top: 10px;
+    overflow-x: auto;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-block .cm { color: #4a6b4a; }
+  .code-block .kw { color: #cc99ff; }
+  .code-block .fn { color: #66d9ef; }
+  .code-block .st { color: #a8ff78; }
+  .code-block .nm { color: #f8c555; }
+
+  .tip-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #a0d4e8;
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .tip-box strong { color: var(--accent); }
+
+  .checklist { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .check-item:hover { background: rgba(255,255,255,0.06); }
+  .check-item input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+  }
+  .check-item label { cursor: pointer; line-height: 1.5; }
+  .check-item.done label { text-decoration: line-through; color: var(--muted); }
+
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .must-pack {
+    background: rgba(255,107,53,0.07);
+    border: 1px solid rgba(255,107,53,0.3);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 32px;
+  }
+  .must-pack h3 { color: var(--accent2); font-size: 15px; margin-bottom: 12px; }
+  .must-pack ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .must-pack ul li { font-size: 13px; padding-left: 18px; position: relative; }
+  .must-pack ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">TEST DAY: SAT 9 MAY 2026 · 9:30 AM</div>
+  <h1>Mavenir <span>24-Hour</span> Prep Plan</h1>
+  <p>Graduate Engineer – Test & Validation · Manyata Embassy Business Park</p>
+  <div class="countdown">
+    <div class="countdown-block"><span class="num" id="h">--</span><span class="lbl">Hours</span></div>
+    <div class="countdown-block"><span class="num" id="m">--</span><span class="lbl">Min</span></div>
+    <div class="countdown-block"><span class="num" id="s">--</span><span class="lbl">Sec</span></div>
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+<div class="progress-label"><span id="progressText">0 / 0 topics checked</span></div>
+
+<!-- SCHEDULE -->
+<div class="timeline-label">Today's Schedule</div>
+<div class="schedule">
+  <div class="slot">
+    <div class="time">Now → 12:30 PM</div>
+    <div>
+      <div class="topic">🐍 Python Fundamentals</div>
+      <div class="desc">Syntax, data types, loops, functions, file I/O</div>
+      <span class="tag py">PYTHON</span>
+    </div>
+  </div>
+  <div class="slot break">
+    <div class="time">12:30 – 1:30 PM</div>
+    <div><div class="topic">🍽 Lunch Break</div></div>
+  </div>
+  <div class="slot">
+    <div class="time">1:30 – 4:00 PM</div>
+    <div>
+      <div class="topic">🐧 Linux Commands</div>
+      <div class="desc">Navigation, permissions, processes, grep/awk/sed, shell scripting</div>
+      <span class="tag lx">LINUX</span>
+    </div>
+  </div>
+  <div class="slot">
+    <div class="time">4:00 – 5:30 PM</div>
+    <div>
+      <div class="topic">🧱 OOP & Programming Basics</div>
+      <div class="desc">Classes, inheritance, polymorphism, encapsulation in Python</div>
+      <span class="tag oo">OOP</span>
+    </div>
+  </div>
+  <div class="slot">
+    <div class="time">5:30 – 7:00 PM</div>
+    <div>
+      <div class="topic">🗄 SQL & Database Fundamentals</div>
+      <div class="desc">SELECT, JOINs, GROUP BY, indexes, normalization</div>
+      <span class="tag sq">SQL</span>
+    </div>
+  </div>
+  <div class="slot break">
+    <div class="time">7:00 – 8:00 PM</div>
+    <div><div class="topic">🍲 Dinner + Rest</div></div>
+  </div>
+  <div class="slot">
+    <div class="time">8:00 – 10:00 PM</div>
+    <div>
+      <div class="topic">🌐 Networking & Telecom Basics</div>
+      <div class="desc">OSI model, TCP/IP, HTTP, DNS, ports, telecom concepts</div>
+      <span class="tag nw">NETWORK</span>
+    </div>
+  </div>
+  <div class="slot">
+    <div class="time">10:00 – 11:30 PM</div>
+    <div>
+      <div class="topic">🔁 Revision Round</div>
+      <div class="desc">Quick pass through all topics, key definitions, likely MCQ traps</div>
+    </div>
+  </div>
+  <div class="slot break">
+    <div class="time">11:30 PM →</div>
+    <div><div class="topic">😴 Sleep — non-negotiable</div><div class="desc">Fresh mind > cramming. Set alarm for 7:30 AM.</div></div>
+  </div>
+</div>
+
+<!-- CONTENT SECTIONS -->
+<div class="timeline-label">Full Study Content</div>
+<div class="sections">
+
+  <!-- PYTHON -->
+  <div class="section open" id="sec-py">
+    <div class="section-header py-header" onclick="toggle('sec-py')">
+      <div class="s-title">🐍 Python <span class="tag py" style="margin:0 0 0 8px">MUST HAVE</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="s-meta">~2.5 hrs</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <h4>1. Basic Syntax & Data Types</h4>
+          <ul>
+            <li>Variables — no type declaration needed: <code>x = 5</code>, <code>name = "farhan"</code></li>
+            <li>Types: int, float, str, bool, None</li>
+            <li>Type checking: <code>type(x)</code> → returns &lt;class 'int'&gt;</li>
+            <li>Type conversion: <code>int("5")</code>, <code>str(42)</code>, <code>float("3.14")</code></li>
+            <li>String methods: <code>.upper()</code>, <code>.lower()</code>, <code>.strip()</code>, <code>.split()</code>, <code>.replace()</code>, <code>.find()</code></li>
+            <li>f-strings: <code>f"Hello {name}"</code> — modern way to format</li>
+          </ul>
+          <div class="code-block"><span class="cm"># Variables and types</span>
+age = 22
+name = <span class="st">"Farhan"</span>
+gpa = 7.5
+is_placed = <span class="kw">False</span>
+
+<span class="cm"># f-string</span>
+<span class="fn">print</span>(<span class="st">f"Name: {name}, Age: {age}"</span>)
+
+<span class="cm"># String methods</span>
+s = <span class="st">"  hello world  "</span>
+<span class="fn">print</span>(s.strip())      <span class="cm"># "hello world"</span>
+<span class="fn">print</span>(s.upper())      <span class="cm"># "  HELLO WORLD  "</span>
+<span class="fn">print</span>(s.split())      <span class="cm"># ['hello', 'world']</span></div>
+        </div>
+
+        <div class="concept-card">
+          <h4>2. Collections — List, Tuple, Dict, Set</h4>
+          <ul>
+            <li><strong>List</strong> — ordered, mutable: <code>[1, 2, 3]</code></li>
+            <li><strong>Tuple</strong> — ordered, immutable: <code>(1, 2, 3)</code></li>
+            <li><strong>Dict</strong> — key-value pairs: <code>{"name": "Farhan"}</code></li>
+            <li><strong>Set</strong> — unordered, unique values: <code>{1, 2, 3}</code></li>
+            <li>List slicing: <code>lst[1:3]</code>, <code>lst[::-1]</code> (reverse)</li>
+            <li>Dict access: <code>d["key"]</code> or <code>d.get("key", default)</code></li>
+          </ul>
+          <div class="code-block">fruits = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]
+fruits.append(<span class="st">"mango"</span>)
+fruits.remove(<span class="st">"banana"</span>)
+<span class="fn">print</span>(fruits[<span class="nm">0</span>])     <span class="cm"># apple</span>
+<span class="fn">print</span>(fruits[-<span class="nm">1</span>])    <span class="cm"># mango</span>
+
+person = {<span class="st">"name"</span>: <span class="st">"Farhan"</span>, <span class="st">"age"</span>: <span class="nm">22</span>}
+person[<span class="st">"city"</span>] = <span class="st">"Bangalore"</span>
+<span class="fn">print</span>(person.keys())    <span class="cm"># dict_keys(['name','age','city'])</span>
+<span class="fn">print</span>(person.values())  <span class="cm"># dict_values(['Farhan', 22, 'Bangalore'])</span>
+
+<span class="cm"># Loop through dict</span>
+<span class="kw">for</span> k, v <span class="kw">in</span> person.items():
+    <span class="fn">print</span>(k, <span class="st">"→"</span>, v)</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>3. Conditionals & Loops</h4>
+          <ul>
+            <li>if / elif / else — standard branching</li>
+            <li>for loop — iterate over list, range, dict</li>
+            <li>while loop — runs while condition is true</li>
+            <li><code>break</code> — exit loop; <code>continue</code> — skip iteration</li>
+            <li><code>range(start, stop, step)</code> — e.g. <code>range(0, 10, 2)</code></li>
+            <li>List comprehension: <code>[x*2 for x in lst if x > 0]</code></li>
+          </ul>
+          <div class="code-block"><span class="cm"># For loop with range</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="fn">print</span>(i)   <span class="cm"># 1 2 3 4 5</span>
+
+<span class="cm"># While loop</span>
+count = <span class="nm">0</span>
+<span class="kw">while</span> count &lt; <span class="nm">3</span>:
+    <span class="fn">print</span>(<span class="st">"tick"</span>)
+    count += <span class="nm">1</span>
+
+<span class="cm"># List comprehension</span>
+squares = [x**<span class="nm">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>)]
+<span class="cm"># [1, 4, 9, 16, 25]</span></div>
+        </div>
+
+        <div class="concept-card">
+          <h4>4. Functions</h4>
+          <ul>
+            <li>Define with <code>def</code>, call by name</li>
+            <li>Default arguments: <code>def greet(name="World")</code></li>
+            <li><code>*args</code> — variable positional args (tuple)</li>
+            <li><code>**kwargs</code> — variable keyword args (dict)</li>
+            <li><code>return</code> — send value back; functions return None by default</li>
+            <li>Lambda: <code>square = lambda x: x**2</code></li>
+          </ul>
+          <div class="code-block"><span class="kw">def</span> <span class="fn">add</span>(a, b=<span class="nm">0</span>):
+    <span class="kw">return</span> a + b
+
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">5</span>))   <span class="cm"># 8</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="nm">10</span>))    <span class="cm"># 10 (uses default b=0)</span>
+
+<span class="cm"># *args example</span>
+<span class="kw">def</span> <span class="fn">total</span>(*nums):
+    <span class="kw">return</span> <span class="fn">sum</span>(nums)
+
+<span class="fn">print</span>(<span class="fn">total</span>(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>))  <span class="cm"># 10</span>
+
+<span class="cm"># Lambda</span>
+square = <span class="kw">lambda</span> x: x**<span class="nm">2</span>
+<span class="fn">print</span>(<span class="fn">square</span>(<span class="nm">5</span>))  <span class="cm"># 25</span></div>
+        </div>
+
+        <div class="concept-card">
+          <h4>5. File I/O</h4>
+          <ul>
+            <li><code>open(file, mode)</code> — modes: 'r' read, 'w' write, 'a' append</li>
+            <li>Always use <code>with open(...) as f:</code> — auto-closes file</li>
+            <li><code>f.read()</code> — full content; <code>f.readlines()</code> — list of lines</li>
+            <li><code>f.write("text")</code> — write string</li>
+          </ul>
+          <div class="code-block"><span class="cm"># Writing to file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"test.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> f:
+    f.write(<span class="st">"Hello Mavenir\n"</span>)
+    f.write(<span class="st">"Line 2\n"</span>)
+
+<span class="cm"># Reading from file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"test.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> line <span class="kw">in</span> f:
+        <span class="fn">print</span>(line.strip())</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>6. Exception Handling</h4>
+          <ul>
+            <li><code>try / except / finally</code> — handle runtime errors</li>
+            <li>Common exceptions: ValueError, TypeError, FileNotFoundError, ZeroDivisionError, IndexError, KeyError</li>
+            <li><code>finally</code> block always runs (cleanup)</li>
+            <li><code>raise Exception("msg")</code> — throw custom error</li>
+          </ul>
+          <div class="code-block"><span class="kw">try</span>:
+    result = <span class="nm">10</span> / <span class="nm">0</span>
+<span class="kw">except</span> ZeroDivisionError <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="st">f"Error: {e}"</span>)
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="st">"This always runs"</span>)
+
+<span class="cm"># Multiple exceptions</span>
+<span class="kw">try</span>:
+    val = <span class="fn">int</span>(<span class="st">"abc"</span>)
+<span class="kw">except</span> ValueError:
+    <span class="fn">print</span>(<span class="st">"Not a number"</span>)</div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Key insight for the test:</strong> Python uses indentation (4 spaces) instead of curly braces. No semicolons. Variables don't need type declarations. These are the most common "gotchas" in written tests.
+      </div>
+
+      <div class="checklist" id="checklist-py">
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Variables, types, f-strings</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>List, Tuple, Dict, Set — differences & methods</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>if/elif/else, for loop, while loop</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Functions, *args, **kwargs, lambda</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>File read/write with `with open`</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>try/except/finally, common exceptions</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINUX -->
+  <div class="section" id="sec-lx">
+    <div class="section-header lx-header" onclick="toggle('sec-lx')">
+      <div class="s-title">🐧 Linux Commands <span class="tag lx" style="margin:0 0 0 8px">MUST HAVE</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="s-meta">~2.5 hrs</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <h4>1. Navigation & File System</h4>
+          <ul>
+            <li><code>pwd</code> — print current directory</li>
+            <li><code>ls</code> — list files; <code>ls -la</code> — long format with hidden</li>
+            <li><code>cd /path</code> — change directory; <code>cd ~</code> home; <code>cd ..</code> up</li>
+            <li><code>mkdir dirname</code> — create directory</li>
+            <li><code>touch file.txt</code> — create empty file</li>
+            <li><code>cp src dest</code> — copy; <code>mv src dest</code> — move/rename</li>
+            <li><code>rm file</code> — delete file; <code>rm -rf dir</code> — delete dir recursively</li>
+            <li><code>cat file</code> — print file; <code>less file</code> — paginated view</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>2. File Permissions</h4>
+          <ul>
+            <li>Format: <code>-rwxrwxrwx</code> → owner / group / others</li>
+            <li>r=4, w=2, x=1 → rwx = 7, rw- = 6, r-- = 4</li>
+            <li><code>chmod 755 file</code> → owner: rwx, group: r-x, others: r-x</li>
+            <li><code>chmod 644 file</code> → owner: rw-, group: r--, others: r--</li>
+            <li><code>chown user:group file</code> — change ownership</li>
+            <li><code>chmod +x script.sh</code> — make executable</li>
+          </ul>
+          <div class="code-block"><span class="cm"># View permissions</span>
+ls -l myfile.py
+<span class="cm"># -rw-r--r-- 1 farhan farhan 245 May 8 09:00 myfile.py</span>
+
+<span class="cm"># Give owner full, others read only</span>
+chmod <span class="nm">744</span> myfile.py
+
+<span class="cm"># Make script executable</span>
+chmod +x run.sh
+./run.sh</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>3. Processes</h4>
+          <ul>
+            <li><code>ps aux</code> — list all running processes</li>
+            <li><code>top</code> / <code>htop</code> — live process monitor</li>
+            <li><code>kill PID</code> — terminate process; <code>kill -9 PID</code> force kill</li>
+            <li><code>ps aux | grep python</code> — find specific process</li>
+            <li><code>&</code> — run in background: <code>./script.sh &</code></li>
+            <li><code>nohup command &</code> — run even after logout</li>
+            <li><code>jobs</code> — list background jobs; <code>fg</code> — bring to foreground</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>4. grep, awk, sed — Text Processing</h4>
+          <ul>
+            <li><code>grep "pattern" file</code> — search for pattern</li>
+            <li><code>grep -i</code> case-insensitive; <code>grep -r</code> recursive; <code>grep -n</code> line numbers</li>
+            <li><code>grep -v "pattern"</code> — exclude lines matching pattern</li>
+            <li><code>awk '{print $1}' file</code> — print 1st column</li>
+            <li><code>awk -F":" '{print $1}' /etc/passwd</code> — use : as delimiter</li>
+            <li><code>sed 's/old/new/g' file</code> — replace all occurrences</li>
+            <li><code>sed -i 's/old/new/g' file</code> — edit in-place</li>
+          </ul>
+          <div class="code-block"><span class="cm"># grep examples</span>
+grep <span class="st">"error"</span> app.log           <span class="cm"># find "error" in log</span>
+grep -i <span class="st">"ERROR"</span> app.log         <span class="cm"># case-insensitive</span>
+grep -rn <span class="st">"def main"</span> ./src/      <span class="cm"># recursive with line nums</span>
+
+<span class="cm"># awk — print 2nd column of CSV</span>
+awk -F<span class="st">","</span> <span class="st">'{print $2}'</span> data.csv
+
+<span class="cm"># sed — replace in file</span>
+sed <span class="st">'s/localhost/0.0.0.0/g'</span> config.txt</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>5. Pipes, Redirection & Useful Commands</h4>
+          <ul>
+            <li><code>|</code> pipe — pass output to next command</li>
+            <li><code>&gt;</code> redirect output to file (overwrites); <code>&gt;&gt;</code> append</li>
+            <li><code>wc -l file</code> — count lines</li>
+            <li><code>sort file</code> — sort lines; <code>sort -r</code> reverse</li>
+            <li><code>uniq</code> — remove duplicate adjacent lines</li>
+            <li><code>head -n 10 file</code> / <code>tail -n 10 file</code> — first/last 10 lines</li>
+            <li><code>find /path -name "*.log"</code> — find files by name</li>
+            <li><code>df -h</code> — disk space; <code>du -sh dir</code> — dir size</li>
+            <li><code>tar -czf archive.tar.gz dir/</code> — create tar.gz</li>
+          </ul>
+          <div class="code-block"><span class="cm"># Chaining commands</span>
+ps aux | grep python | grep -v grep
+cat access.log | grep <span class="st">"404"</span> | wc -l
+ls -la | sort -k5 -n | tail -<span class="nm">5</span>
+
+<span class="cm"># Redirect output</span>
+./test.sh &gt; output.txt <span class="nm">2</span>&gt;&amp;<span class="nm">1</span>
+echo <span class="st">"new line"</span> &gt;&gt; notes.txt</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>6. Shell Scripting Basics</h4>
+          <ul>
+            <li>First line: <code>#!/bin/bash</code> (shebang)</li>
+            <li>Variables: <code>NAME="Farhan"</code>, use as <code>$NAME</code></li>
+            <li>Read input: <code>read varname</code></li>
+            <li>Conditionals: <code>if [ condition ]; then ... fi</code></li>
+            <li>File tests: <code>-f file</code> exists, <code>-d dir</code> is directory</li>
+            <li>For loop: <code>for i in 1 2 3; do ... done</code></li>
+          </ul>
+          <div class="code-block">#!/bin/bash
+NAME=<span class="st">"Farhan"</span>
+<span class="fn">echo</span> <span class="st">"Hello $NAME"</span>
+
+<span class="cm"># Check if file exists</span>
+<span class="kw">if</span> [ -f <span class="st">"test.txt"</span> ]; <span class="kw">then</span>
+    <span class="fn">echo</span> <span class="st">"File exists"</span>
+<span class="kw">else</span>
+    <span class="fn">echo</span> <span class="st">"File not found"</span>
+<span class="kw">fi</span>
+
+<span class="cm"># Loop</span>
+<span class="kw">for</span> i <span class="kw">in</span> 1 2 3; <span class="kw">do</span>
+    <span class="fn">echo</span> <span class="st">"Count: $i"</span>
+<span class="kw">done</span></div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 You use Ubuntu daily</strong> — this is your advantage. You already know most of these. Focus your energy on <strong>permissions math (chmod numbers)</strong> and <strong>grep/awk/sed</strong> — these are classic written test favourites.
+      </div>
+
+      <div class="checklist" id="checklist-lx">
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Navigation: pwd, ls, cd, mkdir, cp, mv, rm</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Permissions: rwx notation, chmod numbers (755, 644)</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Processes: ps, kill, top, background jobs</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>grep with -i, -r, -n, -v flags</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>awk column extraction, sed find-replace</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Pipes |, redirect >, >>, basic shell script</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OOP -->
+  <div class="section" id="sec-oo">
+    <div class="section-header oo-header" onclick="toggle('sec-oo')">
+      <div class="s-title">🧱 OOP & Programming Basics <span class="tag oo" style="margin:0 0 0 8px">PREFERRED</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="s-meta">~1.5 hrs</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <h4>1. The 4 Pillars of OOP</h4>
+          <ul>
+            <li><strong>Encapsulation</strong> — bundle data + methods inside a class; hide internals</li>
+            <li><strong>Abstraction</strong> — expose only what's needed; hide implementation details</li>
+            <li><strong>Inheritance</strong> — child class gets properties of parent class</li>
+            <li><strong>Polymorphism</strong> — same method name, different behaviour per class</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>2. Classes & Objects in Python</h4>
+          <ul>
+            <li><code>class ClassName:</code> — define a class</li>
+            <li><code>__init__(self, ...)</code> — constructor, called when object is created</li>
+            <li><code>self</code> — refers to the current instance (like Java's <code>this</code>)</li>
+            <li>Instance variables: <code>self.name = name</code></li>
+            <li>Create object: <code>obj = ClassName(args)</code></li>
+          </ul>
+          <div class="code-block"><span class="kw">class</span> <span class="fn">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name, species):
+        self.name = name
+        self.species = species
+
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="fn">print</span>(<span class="st">f"{self.name} makes a sound"</span>)
+
+dog = <span class="fn">Animal</span>(<span class="st">"Rex"</span>, <span class="st">"Dog"</span>)
+dog.speak()   <span class="cm"># Rex makes a sound</span>
+<span class="fn">print</span>(dog.name)  <span class="cm"># Rex</span></div>
+        </div>
+
+        <div class="concept-card">
+          <h4>3. Inheritance & Polymorphism</h4>
+          <ul>
+            <li>Child class: <code>class Dog(Animal):</code></li>
+            <li><code>super().__init__()</code> — call parent constructor</li>
+            <li>Method overriding — redefine parent method in child</li>
+            <li>Polymorphism — call same method on different objects, get different results</li>
+          </ul>
+          <div class="code-block"><span class="kw">class</span> <span class="fn">Dog</span>(<span class="fn">Animal</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name):
+        <span class="fn">super</span>().__init__(name, <span class="st">"Dog"</span>)
+
+    <span class="kw">def</span> <span class="fn">speak</span>(self):      <span class="cm"># overrides parent</span>
+        <span class="fn">print</span>(<span class="st">f"{self.name} says Woof!"</span>)
+
+<span class="kw">class</span> <span class="fn">Cat</span>(<span class="fn">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="fn">print</span>(<span class="st">f"{self.name} says Meow!"</span>)
+
+animals = [<span class="fn">Dog</span>(<span class="st">"Rex"</span>), <span class="fn">Cat</span>(<span class="st">"Luna"</span>)]
+<span class="kw">for</span> a <span class="kw">in</span> animals:
+    a.speak()   <span class="cm"># Polymorphism in action</span></div>
+        </div>
+
+        <div class="concept-card">
+          <h4>4. Encapsulation — Private Variables</h4>
+          <ul>
+            <li><code>_var</code> — single underscore: convention for "protected" (don't use outside)</li>
+            <li><code>__var</code> — double underscore: name-mangled, truly private</li>
+            <li>Getter/setter methods control access to private data</li>
+          </ul>
+          <div class="code-block"><span class="kw">class</span> <span class="fn">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, balance):
+        self.__balance = balance   <span class="cm"># private</span>
+
+    <span class="kw">def</span> <span class="fn">get_balance</span>(self):
+        <span class="kw">return</span> self.__balance
+
+    <span class="kw">def</span> <span class="fn">deposit</span>(self, amount):
+        <span class="kw">if</span> amount &gt; <span class="nm">0</span>:
+            self.__balance += amount
+
+acc = <span class="fn">BankAccount</span>(<span class="nm">1000</span>)
+acc.deposit(<span class="nm">500</span>)
+<span class="fn">print</span>(acc.get_balance())  <span class="cm"># 1500</span></div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 You know OOP from Java</strong> — the concepts are identical. Just remember Python syntax differences: <code>self</code> instead of <code>this</code>, <code>def __init__</code> instead of constructor name, and no access modifiers (public/private/protected keywords).
+      </div>
+
+      <div class="checklist" id="checklist-oo">
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>4 pillars: Encapsulation, Abstraction, Inheritance, Polymorphism</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Class definition, __init__, self keyword</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Inheritance with super().__init__()</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Method overriding, polymorphism example</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Private variables with __ prefix</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SQL -->
+  <div class="section" id="sec-sq">
+    <div class="section-header sq-header" onclick="toggle('sec-sq')">
+      <div class="s-title">🗄 SQL & Database Fundamentals <span class="tag sq" style="margin:0 0 0 8px">PREFERRED</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="s-meta">~1.5 hrs</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <h4>1. Basic SELECT Queries</h4>
+          <ul>
+            <li><code>SELECT * FROM table</code> — all columns</li>
+            <li><code>SELECT col1, col2 FROM table WHERE condition</code></li>
+            <li><code>ORDER BY col ASC/DESC</code> — sort results</li>
+            <li><code>LIMIT n</code> — restrict result count</li>
+            <li><code>DISTINCT</code> — remove duplicate rows</li>
+            <li>Operators: =, !=, &gt;, &lt;, LIKE, IN, BETWEEN, IS NULL</li>
+          </ul>
+          <div class="code-block"><span class="cm">-- Basic queries</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees;
+<span class="kw">SELECT</span> name, salary <span class="kw">FROM</span> employees <span class="kw">WHERE</span> salary &gt; <span class="nm">50000</span>;
+<span class="kw">SELECT DISTINCT</span> department <span class="kw">FROM</span> employees;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees <span class="kw">ORDER BY</span> salary <span class="kw">DESC LIMIT</span> <span class="nm">5</span>;
+
+<span class="cm">-- LIKE, IN, BETWEEN</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees <span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="st">'F%'</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees <span class="kw">WHERE</span> dept <span class="kw">IN</span> (<span class="st">'IT'</span>, <span class="st">'QA'</span>);
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> employees <span class="kw">WHERE</span> salary <span class="kw">BETWEEN</span> <span class="nm">40000</span> <span class="kw">AND</span> <span class="nm">70000</span>;</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>2. Aggregate Functions & GROUP BY</h4>
+          <ul>
+            <li><code>COUNT(*)</code> — total rows; <code>COUNT(col)</code> — non-null values</li>
+            <li><code>SUM(col)</code>, <code>AVG(col)</code>, <code>MAX(col)</code>, <code>MIN(col)</code></li>
+            <li><code>GROUP BY col</code> — group rows with same value</li>
+            <li><code>HAVING condition</code> — filter after GROUP BY (like WHERE but for groups)</li>
+          </ul>
+          <div class="code-block"><span class="cm">-- Count employees per department</span>
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total
+<span class="kw">FROM</span> employees
+<span class="kw">GROUP BY</span> department;
+
+<span class="cm">-- Average salary per dept, only dept with avg > 60k</span>
+<span class="kw">SELECT</span> department, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+<span class="kw">FROM</span> employees
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(salary) &gt; <span class="nm">60000</span>;</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>3. JOINs</h4>
+          <ul>
+            <li><strong>INNER JOIN</strong> — only rows that match in BOTH tables</li>
+            <li><strong>LEFT JOIN</strong> — all rows from left table + matching from right (NULL if no match)</li>
+            <li><strong>RIGHT JOIN</strong> — all rows from right table + matching from left</li>
+            <li><strong>FULL OUTER JOIN</strong> — all rows from both tables</li>
+          </ul>
+          <div class="code-block"><span class="cm">-- Tables: employees(id, name, dept_id), departments(id, dept_name)</span>
+
+<span class="cm">-- INNER JOIN — only matched rows</span>
+<span class="kw">SELECT</span> e.name, d.dept_name
+<span class="kw">FROM</span> employees e
+<span class="kw">INNER JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.id;
+
+<span class="cm">-- LEFT JOIN — all employees, even without dept</span>
+<span class="kw">SELECT</span> e.name, d.dept_name
+<span class="kw">FROM</span> employees e
+<span class="kw">LEFT JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.id;</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>4. DDL & DML — CREATE, INSERT, UPDATE, DELETE</h4>
+          <ul>
+            <li><strong>DDL</strong> (Data Definition): CREATE, ALTER, DROP, TRUNCATE</li>
+            <li><strong>DML</strong> (Data Manipulation): SELECT, INSERT, UPDATE, DELETE</li>
+            <li>Primary Key — unique identifier for a row; cannot be NULL</li>
+            <li>Foreign Key — links to primary key of another table</li>
+          </ul>
+          <div class="code-block"><span class="kw">CREATE TABLE</span> employees (
+    id <span class="kw">INT PRIMARY KEY</span>,
+    name <span class="kw">VARCHAR</span>(<span class="nm">100</span>) <span class="kw">NOT NULL</span>,
+    salary <span class="kw">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>),
+    dept_id <span class="kw">INT</span>,
+    <span class="kw">FOREIGN KEY</span> (dept_id) <span class="kw">REFERENCES</span> departments(id)
+);
+
+<span class="kw">INSERT INTO</span> employees <span class="kw">VALUES</span> (<span class="nm">1</span>, <span class="st">'Farhan'</span>, <span class="nm">55000</span>, <span class="nm">2</span>);
+<span class="kw">UPDATE</span> employees <span class="kw">SET</span> salary = <span class="nm">60000</span> <span class="kw">WHERE</span> id = <span class="nm">1</span>;
+<span class="kw">DELETE FROM</span> employees <span class="kw">WHERE</span> id = <span class="nm">1</span>;</div>
+        </div>
+
+        <div class="concept-card">
+          <h4>5. Normalization Basics</h4>
+          <ul>
+            <li><strong>1NF</strong> — no repeating groups; each column has atomic values</li>
+            <li><strong>2NF</strong> — 1NF + no partial dependency (non-key cols depend on full PK)</li>
+            <li><strong>3NF</strong> — 2NF + no transitive dependency (non-key cols depend only on PK)</li>
+            <li><strong>Index</strong> — speeds up SELECT queries; slows INSERT/UPDATE</li>
+            <li><code>CREATE INDEX idx_name ON table(column)</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="checklist" id="checklist-sq">
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>SELECT, WHERE, ORDER BY, LIMIT, DISTINCT</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>COUNT, SUM, AVG, GROUP BY, HAVING</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>INNER JOIN, LEFT JOIN — know the difference</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>CREATE TABLE, INSERT, UPDATE, DELETE</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Primary Key, Foreign Key, NOT NULL</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>1NF, 2NF, 3NF — what each level means</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NETWORKING -->
+  <div class="section" id="sec-nw">
+    <div class="section-header nw-header" onclick="toggle('sec-nw')">
+      <div class="s-title">🌐 Networking & Telecom Basics <span class="tag nw" style="margin:0 0 0 8px">PREFERRED</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="s-meta">~2 hrs</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="concept-grid">
+
+        <div class="concept-card">
+          <h4>1. OSI Model — 7 Layers</h4>
+          <ul>
+            <li><strong>7 – Application</strong> — HTTP, FTP, SMTP, DNS (user-facing protocols)</li>
+            <li><strong>6 – Presentation</strong> — encryption, encoding, compression (SSL/TLS)</li>
+            <li><strong>5 – Session</strong> — manages sessions/connections between apps</li>
+            <li><strong>4 – Transport</strong> — TCP (reliable), UDP (fast, unreliable), ports</li>
+            <li><strong>3 – Network</strong> — IP addresses, routing (IP, ICMP)</li>
+            <li><strong>2 – Data Link</strong> — MAC addresses, switches, frames (Ethernet)</li>
+            <li><strong>1 – Physical</strong> — cables, signals, hardware (bits)</li>
+          </ul>
+          <div class="tip-box" style="margin-top:10px">
+            <strong>Mnemonic:</strong> "All People Seem To Need Data Processing" (top to bottom: App→Physical)
+          </div>
+        </div>
+
+        <div class="concept-card">
+          <h4>2. TCP vs UDP</h4>
+          <ul>
+            <li><strong>TCP</strong> — connection-oriented, reliable, ordered, slower. Uses 3-way handshake (SYN → SYN-ACK → ACK)</li>
+            <li><strong>UDP</strong> — connectionless, faster, no guarantee of delivery. Used for streaming, DNS, gaming</li>
+            <li>TCP examples: HTTP, HTTPS, FTP, SSH, SMTP</li>
+            <li>UDP examples: DNS, VoIP, video streaming, DHCP</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>3. Important Ports</h4>
+          <ul>
+            <li>HTTP → 80 | HTTPS → 443</li>
+            <li>FTP → 20/21 | SSH → 22 | Telnet → 23</li>
+            <li>SMTP → 25 | DNS → 53 | DHCP → 67/68</li>
+            <li>POP3 → 110 | IMAP → 143 | MySQL → 3306</li>
+            <li>PostgreSQL → 5432 | Redis → 6379 | MongoDB → 27017</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>4. IP Addressing & Subnetting Basics</h4>
+          <ul>
+            <li>IPv4 — 32-bit: e.g. 192.168.1.1 (4 octets, 0–255 each)</li>
+            <li>IPv6 — 128-bit: e.g. 2001:0db8::1 (8 groups of hex)</li>
+            <li>Private ranges: 10.x.x.x, 172.16.x.x, 192.168.x.x</li>
+            <li>Loopback: 127.0.0.1 (localhost)</li>
+            <li>Subnet mask: /24 = 255.255.255.0 → 256 addresses, 254 usable</li>
+            <li>CIDR notation: 192.168.1.0/24</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>5. HTTP & Web Basics</h4>
+          <ul>
+            <li>HTTP methods: GET (read), POST (create), PUT (replace), PATCH (partial update), DELETE</li>
+            <li>Status codes: 2xx success, 3xx redirect, 4xx client error, 5xx server error</li>
+            <li>Common: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Internal Server Error</li>
+            <li>REST API — stateless, uses HTTP methods on resources</li>
+            <li>DNS — translates domain names to IP addresses</li>
+          </ul>
+        </div>
+
+        <div class="concept-card">
+          <h4>6. Telecom Concepts (Mavenir-specific)</h4>
+          <ul>
+            <li><strong>4G LTE / 5G</strong> — mobile network generations. 5G = sub-6GHz + mmWave, lower latency</li>
+            <li><strong>VoIP</strong> — Voice over IP; Mavenir's core domain. Uses SIP protocol</li>
+            <li><strong>SIP</strong> (Session Initiation Protocol) — sets up/tears down voice/video calls over IP</li>
+            <li><strong>RTP</strong> — Real-time Transport Protocol; carries actual audio/video data</li>
+            <li><strong>IMS</strong> — IP Multimedia Subsystem; framework for delivering multimedia over IP networks</li>
+            <li><strong>NFV</strong> — Network Function Virtualization; running telecom functions as software (VMs/containers)</li>
+            <li><strong>vRAN / Open RAN</strong> — virtualized radio access network; Mavenir's key product area</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Mavenir context:</strong> Mavenir builds telecom software (vRAN, IMS, VoIP). Even a surface-level understanding of SIP, IMS, and NFV will impress. You don't need depth — just recognition.
+      </div>
+
+      <div class="checklist" id="checklist-nw">
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>OSI 7 layers — name each with example protocol</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>TCP vs UDP — differences, use cases</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>Key ports: 22, 25, 53, 80, 443, 3306</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>HTTP methods (GET/POST/PUT/DELETE) + status codes</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>IPv4 private ranges, loopback, CIDR basics</label></div>
+        <div class="check-item" onclick="checkItem(this)"><input type="checkbox"><label>SIP, RTP, IMS, NFV — what each stands for and does</label></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MUST PACK -->
+<div class="must-pack">
+  <h3>🎒 Tomorrow Morning Checklist</h3>
+  <ul>
+    <li>Printed/digital resume (updated)</li>
+    <li>Original government-issued photo ID (Aadhaar, PAN, Passport, DL)</li>
+    <li>Leave by 8:30 AM — Manyata can have parking queues</li>
+    <li>8th Floor, MFAR Manyata Embassy Business Park, Nagavara</li>
+    <li>Test starts 9:30 AM sharp</li>
+  </ul>
+</div>
+
+<script>
+  // Countdown
+  function updateCountdown() {
+    const test = new Date('2026-05-09T09:30:00+05:30').getTime();
+    const now = Date.now();
+    const diff = Math.max(0, test - now);
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('h').textContent = String(h).padStart(2,'0');
+    document.getElementById('m').textContent = String(m).padStart(2,'0');
+    document.getElementById('s').textContent = String(s).padStart(2,'0');
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // Section toggle
+  function toggle(id) {
+    const sec = document.getElementById(id);
+    sec.classList.toggle('open');
+  }
+
+  // Checklist
+  function checkItem(el) {
+    const cb = el.querySelector('input');
+    cb.checked = !cb.checked;
+    el.classList.toggle('done', cb.checked);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.check-item input');
+    const done = document.querySelectorAll('.check-item input:checked');
+    const pct = all.length ? (done.length / all.length * 100) : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${done.length} / ${all.length} topics checked`;
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
